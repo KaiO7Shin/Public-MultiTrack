@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { useParams } from "react-router-dom";
 import { AppHeader } from "@/components/AppHeader";
 import { SearchBar } from "@/components/SearchBar";
@@ -6,6 +6,10 @@ import { FilterTabs } from "@/components/FilterTabs";
 import { Podium } from "@/components/Podium";
 import { RankingList } from "@/components/RankingList";
 import { LoadingState, ErrorState, EmptyState } from "@/components/EmptyState";
+import {
+  RankingBusyOverlay,
+  RefreshProgressBar,
+} from "@/components/RankingBusyOverlay";
 import { useAutoRefresh } from "@/hooks/useAutoRefresh";
 import { fetchRaceById } from "@/services/races";
 import { fetchPhases, fetchRankingForCourse } from "@/services/ranking";
@@ -34,6 +38,8 @@ export function RankingPage() {
   const [tab, setTab] = useState<FilterTab>("all");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [bikeType, setBikeType] = useState<BikeType | null>(null);
+  const [isFilterPending, startFilterTransition] = useTransition();
+  const [resultsKey, setResultsKey] = useState(0);
 
   useEffect(() => {
     setRace(null);
@@ -75,24 +81,25 @@ export function RankingPage() {
         setActivePhaseId(null);
       }
 
+      // Classement complet : filtres genre / cat / vélo appliqués côté client (instantané)
       const result = await fetchRankingForCourse(
         raceId,
         current.type,
         pid,
-        signal,
-        current.type === "DH" && bikeType ? { bikeType } : undefined
+        signal
       );
       setEntries(result.entries);
       setPhaseLabel(result.phaseLabel);
     },
-    [raceId, selectedPhaseId, bikeType]
+    [raceId, selectedPhaseId]
   );
 
   const ready = Number.isFinite(raceId) && raceId > 0;
 
   const { loading, error, reload, updatedAt, refreshing } = useAutoRefresh(
     load,
-    ready
+    ready,
+    raceId
   );
 
   const categories = useMemo(() => uniqueCategories(entries), [entries]);
@@ -118,17 +125,32 @@ export function RankingPage() {
     });
   }, [entries, tab, selectedCategory, bikeType, race?.type]);
 
+  const bumpResults = () => setResultsKey((k) => k + 1);
+
+  const applyFilter = useCallback((action: () => void) => {
+    startFilterTransition(() => {
+      action();
+      bumpResults();
+    });
+  }, []);
+
+  const hasRows = entries.length > 0;
+  const initialLoading = loading && !hasRows;
+  const softBusy = (loading && hasRows) || refreshing || isFilterPending;
+
   const notStarted = race?.status === "A venir";
-  const noResults = !loading && !error && entries.length === 0;
+  const noResults = !initialLoading && !error && entries.length === 0;
   const searchMiss =
-    !loading &&
+    !initialLoading &&
     !error &&
+    !softBusy &&
     entries.length > 0 &&
     filtered.length === 0 &&
     search.trim().length > 0;
   const filterMiss =
-    !loading &&
+    !initialLoading &&
     !error &&
+    !softBusy &&
     entries.length > 0 &&
     filtered.length === 0 &&
     !search.trim();
@@ -159,7 +181,7 @@ export function RankingPage() {
         }
         live={race?.status === "En cours"}
         updatedAt={updatedAt}
-        refreshing={refreshing}
+        refreshing={refreshing || softBusy}
       />
 
       {needsPhaseTabs && (
@@ -174,6 +196,7 @@ export function RankingPage() {
               type="button"
               role="tab"
               aria-selected={activePhaseId === p.id}
+              disabled={softBusy && activePhaseId !== p.id && loading}
               onClick={() => setSelectedPhaseId(p.id)}
               className={cn(
                 "touch-target shrink-0 rounded-xl border-2 px-4 py-2.5 text-base font-bold",
@@ -192,21 +215,30 @@ export function RankingPage() {
         <SearchBar value={search} onChange={setSearch} />
         <FilterTabs
           value={tab}
-          onChange={setTab}
+          onChange={(t) =>
+            applyFilter(() => {
+              setTab(t);
+              if (t !== "categories") setSelectedCategory(null);
+            })
+          }
           categories={categories}
           selectedCategory={selectedCategory}
-          onSelectCategory={setSelectedCategory}
+          onSelectCategory={(c) => applyFilter(() => setSelectedCategory(c))}
           showBikeFilter={race?.type === "DH"}
           bikeType={bikeType}
-          onBikeTypeChange={setBikeType}
+          onBikeTypeChange={(b) => applyFilter(() => setBikeType(b))}
         />
       </div>
 
-      {loading && <LoadingState label="Chargement du classement…" />}
+      <RefreshProgressBar active={softBusy} />
 
-      {!loading && error && <ErrorState message={error} onRetry={reload} />}
+      {initialLoading && <LoadingState label="Chargement du classement…" />}
 
-      {!loading && !error && notStarted && noResults && (
+      {!initialLoading && error && (
+        <ErrorState message={error} onRetry={reload} />
+      )}
+
+      {!initialLoading && !error && notStarted && noResults && (
         <EmptyState
           title="La course n’a pas encore commencé"
           description="Le classement apparaîtra dès les premiers temps."
@@ -214,7 +246,7 @@ export function RankingPage() {
         />
       )}
 
-      {!loading && !error && !notStarted && noResults && (
+      {!initialLoading && !error && !notStarted && noResults && (
         <EmptyState
           title="Aucun résultat pour l’instant"
           description="Les temps s’affichent ici dès qu’ils sont enregistrés."
@@ -222,7 +254,7 @@ export function RankingPage() {
         />
       )}
 
-      {!loading && !error && searchMiss && (
+      {!initialLoading && !error && searchMiss && (
         <EmptyState
           title="Coureur introuvable"
           description="Vérifiez le numéro de dossard ou le nom, puis réessayez."
@@ -230,7 +262,7 @@ export function RankingPage() {
         />
       )}
 
-      {!loading && !error && filterMiss && (
+      {!initialLoading && !error && filterMiss && (
         <EmptyState
           title="Personne dans ce filtre"
           description="Essayez « Tous », un autre type de vélo, ou une autre catégorie."
@@ -238,13 +270,27 @@ export function RankingPage() {
         />
       )}
 
-      {!loading && !error && filtered.length > 0 && (
-        <>
-          {!search.trim() && (
-            <Podium entries={podiumSource} raceId={raceId} />
+      {!initialLoading && !error && (filtered.length > 0 || softBusy) && (
+        <div className="relative min-h-[200px]">
+          <RankingBusyOverlay
+            active={softBusy}
+            label={
+              isFilterPending
+                ? "Filtrage…"
+                : loading
+                  ? "Chargement…"
+                  : "Mise à jour…"
+            }
+          />
+          {filtered.length > 0 && (
+            <div key={resultsKey} className="animate-results-swap">
+              {!search.trim() && (
+                <Podium entries={podiumSource} raceId={raceId} />
+              )}
+              <RankingList entries={filtered} raceId={raceId} />
+            </div>
           )}
-          <RankingList entries={filtered} raceId={raceId} />
-        </>
+        </div>
       )}
     </div>
   );
