@@ -1,0 +1,119 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Barlow Condensed", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif;
+
+  --color-navy: #1a2b48;
+  --color-navy-soft: #243556;
+  --color-cream: #f7f4ee;
+  --color-cream-bright: #fdfbf7;
+  --color-cta: #ff4d30;
+  --color-cta-dark: #e03d22;
+  --color-trail: #2d6a4f;
+  --color-dh: #b45309;
+  --color-xc: #1d4ed8;
+  --color-gold: #d4a017;
+  --color-silver: #8a939e;
+  --color-bronze: #b87333;
+  --color-muted: #5c6b7a;
+  --color-line: #d9e0e8;
+  --color-live: #16a34a;
+}
+
+@layer base {
+  html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    font-family: var(--font-sans);
+    color: var(--color-navy);
+    background:
+      radial-gradient(ellipse 120% 80% at 10% -10%, rgba(255, 77, 48, 0.12), transparent 50%),
+      radial-gradient(ellipse 90% 60% at 100% 0%, rgba(45, 106, 79, 0.14), transparent 45%),
+      linear-gradient(165deg, #f7f4ee 0%, #eef2f0 45%, #e8eef5 100%);
+    background-attachment: fixed;
+  }
+
+  #root {
+    min-height: 100dvh;
+  }
+
+  *:focus-visible {
+    outline: 3px solid var(--color-cta);
+    outline-offset: 2px;
+  }
+
+  button,
+  a,
+  input,
+  select {
+    font: inherit;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: 0.02em;
+  }
+
+  .touch-target {
+    min-height: 48px;
+    min-width: 48px;
+  }
+
+  .texture-grain {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  }
+}
+
+@keyframes pulse-live {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(0.85);
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes podium-pop {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-pulse-live {
+  animation: pulse-live 1.4s ease-in-out infinite;
+}
+
+.animate-rise-in {
+  animation: rise-in 0.45s ease-out both;
+}
+
+.animate-podium {
+  animation: podium-pop 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
