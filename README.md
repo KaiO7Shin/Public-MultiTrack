@@ -39,12 +39,30 @@ Le dossier de publication est `dist/`.
 
 ## Déploiement Render (Static Site)
 
-1. Créer un **Static Site** pointant sur ce dépôt / dossier `Public-MultiTrack`.
-2. **Avant le build**, définir la variable d’environnement :
-   - `VITE_API_URL` = `https://b-mtrack-service.onrender.com/api` (ou l’URL de votre API)
-3. Build command : `npm install && npm run build`
-4. Publish directory : `dist`
-5. (Optionnel) Rewrite SPA : toutes les routes vers `/index.html` pour React Router.
+### Option A — depuis le dashboard (recommandé)
+
+1. Va sur [dashboard.render.com](https://dashboard.render.com)
+2. **New** → **Static Site**
+3. Connecte le dépôt GitHub **`KaiO7Shin/Public-MultiTrack`** (branche `main`)
+4. Réglages :
+   - **Name** : `public-multitrack` (ou autre)
+   - **Build Command** : `npm install && npm run build`
+   - **Publish Directory** : `dist`
+5. **Environment** (avant le premier build) :
+   - `VITE_API_URL` = `https://b-mtrack-service.onrender.com/api`
+6. **Redirects/Rewrites** (SPA React Router) :
+   - Source : `/*`
+   - Destination : `/index.html`
+   - Action : **Rewrite**
+7. **Create Static Site** → attendre le build vert
+
+### Option B — Blueprint
+
+Le fichier `render.yaml` est à la racine. Sur Render : **New** → **Blueprint** → sélectionner ce dépôt.
+
+### Important
+
+`VITE_API_URL` est lue **au moment du build** Vite. Si tu la changes après coup, relance un **Manual Deploy** (Clear build cache + deploy).
 
 ## API utilisée (lecture seule)
 
