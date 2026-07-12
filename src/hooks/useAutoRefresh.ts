@@ -6,12 +6,14 @@ type LoadFn = (signal: AbortSignal) => Promise<void>;
 
 /**
  * Charge des données puis les rafraîchit automatiquement (20 s).
- * Premier chargement : spinner plein. Changements suivants (phase, etc.) : soft refresh.
+ * - resetKey : nouveau chargement plein (ex. changement de course)
+ * - reloadKey : soft refresh (ex. changement de phase)
  */
 export function useAutoRefresh(
   load: LoadFn,
   enabled = true,
-  resetKey?: string | number
+  resetKey?: string | number,
+  reloadKey?: string | number
 ) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -72,7 +74,7 @@ export function useAutoRefresh(
       generation.current += 1;
       clearInterval(timer);
     };
-  }, [enabled, execute]);
+  }, [enabled, execute, resetKey, reloadKey]);
 
   return { loading, refreshing, updatedAt, error, reload, setError };
 }

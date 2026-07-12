@@ -79,7 +79,8 @@ export function AthletePage() {
   const { loading, error, reload, updatedAt, refreshing } = useAutoRefresh(
     load,
     ready,
-    `${raceId}-${participantId}-${phaseFromUrl || 0}`
+    `${raceId}-${participantId}`,
+    phaseFromUrl || "auto"
   );
 
   const name = useMemo(

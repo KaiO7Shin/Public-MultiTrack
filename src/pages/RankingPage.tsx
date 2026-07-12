@@ -100,7 +100,8 @@ export function RankingPage() {
   const { loading, error, reload, updatedAt, refreshing } = useAutoRefresh(
     load,
     ready,
-    raceId
+    raceId,
+    selectedPhaseId ?? "auto"
   );
 
   const categories = useMemo(() => uniqueCategories(entries), [entries]);
@@ -199,8 +200,10 @@ export function RankingPage() {
               type="button"
               role="tab"
               aria-selected={activePhaseId === p.id}
-              disabled={softBusy && activePhaseId !== p.id && loading}
-              onClick={() => setSelectedPhaseId(p.id)}
+              onClick={() => {
+                setSelectedPhaseId(p.id);
+                setActivePhaseId(p.id);
+              }}
               className={cn(
                 "touch-target shrink-0 rounded-[10px] border px-4 py-2.5 text-base font-semibold",
                 activePhaseId === p.id
