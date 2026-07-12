@@ -18,7 +18,7 @@ export function RankingBusyOverlay({
   return (
     <div
       className={cn(
-        "absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-2xl bg-cream/75 backdrop-blur-[2px]",
+        "absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-[12px] bg-cream/80 backdrop-blur-[2px]",
         "animate-fade-in",
         className
       )}

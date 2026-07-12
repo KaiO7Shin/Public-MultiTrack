@@ -6,10 +6,10 @@ export function StatusBadge({ status }: { status: CourseStatus }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-md px-2.5 py-1 text-sm font-bold",
-        status === "En cours" && "bg-live/15 text-live",
-        status === "A venir" && "bg-navy/10 text-navy",
-        status === "Terminee" && "bg-muted/20 text-muted"
+        "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold",
+        status === "En cours" && "bg-sage-soft text-sage-dark",
+        status === "A venir" && "bg-cream-soft text-navy/70",
+        status === "Terminee" && "bg-navy/8 text-navy"
       )}
     >
       {statusLabel(status)}
@@ -21,10 +21,10 @@ export function TypeBadge({ type }: { type: CourseType }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-md px-2.5 py-1 text-sm font-bold text-cream-bright",
-        type === "TRAIL" && "bg-trail",
-        type === "DH" && "bg-dh",
-        type === "XC" && "bg-xc"
+        "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold",
+        type === "TRAIL" && "bg-sage/20 text-sage-dark",
+        type === "DH" && "bg-dh/15 text-dh",
+        type === "XC" && "bg-xc/15 text-xc"
       )}
     >
       {typeLabel(type)}

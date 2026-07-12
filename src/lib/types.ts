@@ -35,6 +35,14 @@ export type Phase = {
   label: string;
 };
 
+export type MancheTimeDetail = {
+  mancheId: number;
+  mancheLabel: string;
+  timeMs?: number | null;
+  timeFormatted: string | null;
+  finished?: boolean;
+};
+
 /** Ligne unifiée affichée dans l'app publique */
 export type RankingEntry = {
   participantId: number;
@@ -50,6 +58,8 @@ export type RankingEntry = {
   genderRank: number | null;
   disqualified: boolean;
   bikeType?: BikeType;
+  /** Temps détaillés par manche (DH / XC) */
+  mancheTimes?: MancheTimeDetail[];
 };
 
 export type FilterTab = "all" | "Homme" | "Femme" | "categories";
@@ -66,6 +76,7 @@ export type DHRankingRow = {
   rankScratch: number | null;
   rankCategory: number | null;
   disqualified: boolean;
+  mancheTimes?: MancheTimeDetail[];
 };
 
 export type XCRankingRow = {

@@ -1,15 +1,17 @@
 import { Link } from "react-router-dom";
 import type { RankingEntry } from "@/lib/types";
 import { BIKE_TYPE_LABELS } from "@/lib/types";
+import { athletePath } from "@/lib/links";
 import { formatParticipantName } from "@/lib/utils";
 import { cn } from "@/lib/cn";
 
 type RankingListProps = {
   entries: RankingEntry[];
   raceId: number;
+  phaseId?: number | null;
 };
 
-export function RankingList({ entries, raceId }: RankingListProps) {
+export function RankingList({ entries, raceId, phaseId }: RankingListProps) {
   if (entries.length === 0) return null;
 
   return (
@@ -17,26 +19,23 @@ export function RankingList({ entries, raceId }: RankingListProps) {
       {entries.map((entry, i) => (
         <li key={entry.participantId}>
           <Link
-            to={`/course/${raceId}/coureur/${entry.participantId}`}
+            to={athletePath(raceId, entry.participantId, phaseId)}
             className={cn(
-              "flex min-h-[64px] items-center gap-3 rounded-2xl border-2 border-navy/10 bg-cream-bright/95 px-3 py-3 shadow-sm transition",
-              "hover:border-navy/25 active:scale-[0.995]",
+              "flex min-h-[64px] items-center gap-3 rounded-[12px] border border-line bg-cream-bright px-3 py-3 shadow-sm transition",
+              "hover:border-navy/20 active:scale-[0.995]",
               entry.disqualified && "opacity-60"
             )}
             style={
-              i < 12
-                ? { animationDelay: `${i * 30}ms` }
-                : undefined
+              i < 12 ? { animationDelay: `${i * 30}ms` } : undefined
             }
           >
             <span
               className={cn(
-                "font-display flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-xl font-extrabold",
+                "font-sans flex h-12 w-12 shrink-0 items-center justify-center rounded-[10px] text-xl font-bold",
                 entry.rank === 1 && "bg-gold text-cream-bright",
                 entry.rank === 2 && "bg-silver text-cream-bright",
                 entry.rank === 3 && "bg-bronze text-cream-bright",
-                (entry.rank == null || entry.rank > 3) &&
-                  "bg-navy/8 text-navy"
+                (entry.rank == null || entry.rank > 3) && "bg-navy/8 text-navy"
               )}
               aria-label={
                 entry.rank != null ? `Rang ${entry.rank}` : "Sans rang"
@@ -66,7 +65,7 @@ export function RankingList({ entries, raceId }: RankingListProps) {
               </p>
             </div>
 
-            <span className="font-display shrink-0 text-right text-xl font-bold text-navy sm:text-2xl">
+            <span className="font-sans shrink-0 text-right text-xl font-bold text-navy sm:text-2xl">
               {entry.time ?? "—"}
             </span>
           </Link>

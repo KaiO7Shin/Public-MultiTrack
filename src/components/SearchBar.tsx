@@ -28,13 +28,13 @@ export function SearchBar({ value, onChange, className }: SearchBarProps) {
         placeholder="Chercher un coureur (n° ou nom)"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="touch-target w-full rounded-2xl border-2 border-navy/15 bg-cream-bright py-3.5 pr-12 pl-12 text-lg text-navy placeholder:text-muted/80 shadow-sm"
+        className="touch-target w-full rounded-[10px] border border-line bg-cream-bright py-3.5 pr-12 pl-12 text-lg text-navy placeholder:text-muted/80 shadow-sm"
       />
       {value && (
         <button
           type="button"
           onClick={() => onChange("")}
-          className="touch-target absolute top-1/2 right-2 flex -translate-y-1/2 items-center justify-center rounded-xl px-3 text-muted hover:text-navy"
+          className="touch-target absolute top-1/2 right-2 flex -translate-y-1/2 items-center justify-center rounded-[10px] px-3 text-muted hover:text-navy"
           aria-label="Effacer la recherche"
         >
           <X className="h-5 w-5" />

@@ -10,12 +10,14 @@ import {
   RankingBusyOverlay,
   RefreshProgressBar,
 } from "@/components/RankingBusyOverlay";
+import { ProvisionalNotice } from "@/components/ProvisionalNotice";
 import { useAutoRefresh } from "@/hooks/useAutoRefresh";
 import { fetchRaceById } from "@/services/races";
 import { fetchPhases, fetchRankingForCourse } from "@/services/ranking";
 import type { BikeType, Course, FilterTab, Phase, RankingEntry } from "@/lib/types";
 import {
   filterEntries,
+  isRaceLive,
   statusLabel,
   typeLabel,
   uniqueCategories,
@@ -81,7 +83,6 @@ export function RankingPage() {
         setActivePhaseId(null);
       }
 
-      // Classement complet : filtres genre / cat / vélo appliqués côté client (instantané)
       const result = await fetchRankingForCourse(
         raceId,
         current.type,
@@ -134,11 +135,11 @@ export function RankingPage() {
     });
   }, []);
 
-  const hasRows = entries.length > 0;
-  const initialLoading = loading && !hasRows;
-  const softBusy = (loading && hasRows) || refreshing || isFilterPending;
-
+  const initialLoading = loading && !race;
+  const softBusy = (loading && !!race) || refreshing || isFilterPending;
+  const live = isRaceLive(race?.status);
   const notStarted = race?.status === "A venir";
+
   const noResults = !initialLoading && !error && entries.length === 0;
   const searchMiss =
     !initialLoading &&
@@ -167,7 +168,7 @@ export function RankingPage() {
     (race?.type === "DH" || race?.type === "XC") && phases.length > 1;
 
   return (
-    <div className="texture-grain mx-auto min-h-dvh max-w-lg px-4 pb-20 pt-4 sm:max-w-2xl">
+    <div className="mx-auto min-h-dvh max-w-lg px-4 pb-20 pt-4 sm:max-w-2xl">
       <AppHeader
         backTo="/"
         backLabel="Toutes les courses"
@@ -179,10 +180,12 @@ export function RankingPage() {
                 .join(" · ")
             : undefined
         }
-        live={race?.status === "En cours"}
+        live={live}
         updatedAt={updatedAt}
         refreshing={refreshing || softBusy}
       />
+
+      {live && <ProvisionalNotice />}
 
       {needsPhaseTabs && (
         <div
@@ -199,10 +202,10 @@ export function RankingPage() {
               disabled={softBusy && activePhaseId !== p.id && loading}
               onClick={() => setSelectedPhaseId(p.id)}
               className={cn(
-                "touch-target shrink-0 rounded-xl border-2 px-4 py-2.5 text-base font-bold",
+                "touch-target shrink-0 rounded-[10px] border px-4 py-2.5 text-base font-semibold",
                 activePhaseId === p.id
-                  ? "border-navy bg-navy text-cream-bright"
-                  : "border-navy/15 bg-cream-bright text-navy"
+                  ? "border-navy bg-navy text-white"
+                  : "border-line bg-cream-bright text-navy"
               )}
             >
               {p.label}
@@ -285,9 +288,17 @@ export function RankingPage() {
           {filtered.length > 0 && (
             <div key={resultsKey} className="animate-results-swap">
               {!search.trim() && (
-                <Podium entries={podiumSource} raceId={raceId} />
+                <Podium
+                  entries={podiumSource}
+                  raceId={raceId}
+                  phaseId={activePhaseId}
+                />
               )}
-              <RankingList entries={filtered} raceId={raceId} />
+              <RankingList
+                entries={filtered}
+                raceId={raceId}
+                phaseId={activePhaseId}
+              />
             </div>
           )}
         </div>

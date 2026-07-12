@@ -1,18 +1,22 @@
 import { Link } from "react-router-dom";
 import type { RankingEntry } from "@/lib/types";
+import { athletePath } from "@/lib/links";
 import { formatParticipantName } from "@/lib/utils";
 import { cn } from "@/lib/cn";
 
 type PodiumProps = {
   entries: RankingEntry[];
   raceId: number;
+  phaseId?: number | null;
 };
 
-const ORDER = [1, 0, 2] as const; // visual: 2nd, 1st, 3rd
+const ORDER = [1, 0, 2] as const;
 
-export function Podium({ entries, raceId }: PodiumProps) {
+export function Podium({ entries, raceId, phaseId }: PodiumProps) {
   const top = entries
-    .filter((e) => e.rank != null && e.rank >= 1 && e.rank <= 3 && !e.disqualified)
+    .filter(
+      (e) => e.rank != null && e.rank >= 1 && e.rank <= 3 && !e.disqualified
+    )
     .sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99))
     .slice(0, 3);
 
@@ -22,7 +26,7 @@ export function Podium({ entries, raceId }: PodiumProps) {
 
   return (
     <section aria-label="Podium — Qui est premier ?" className="mb-6">
-      <h2 className="font-display mb-4 text-center text-2xl font-bold text-navy sm:text-3xl">
+      <h2 className="font-display mb-4 text-center text-3xl text-navy sm:text-4xl">
         Qui est premier&nbsp;?
       </h2>
       <div className="flex items-end justify-center gap-2 sm:gap-4">
@@ -44,14 +48,14 @@ export function Podium({ entries, raceId }: PodiumProps) {
             >
               {entry ? (
                 <Link
-                  to={`/course/${raceId}/coureur/${entry.participantId}`}
+                  to={athletePath(raceId, entry.participantId, phaseId)}
                   className="mb-2 w-full text-center"
                 >
                   <p className="truncate text-sm font-bold text-navy sm:text-base">
                     {formatParticipantName(entry.firstName, entry.lastName)}
                   </p>
                   <p className="text-sm text-muted">n°{entry.bib}</p>
-                  <p className="mt-0.5 font-display text-lg font-bold text-cta sm:text-xl">
+                  <p className="mt-0.5 font-sans text-lg font-bold text-cta sm:text-xl">
                     {entry.time ?? "—"}
                   </p>
                 </Link>
@@ -60,13 +64,13 @@ export function Podium({ entries, raceId }: PodiumProps) {
               )}
               <div
                 className={cn(
-                  "flex w-full flex-col items-center justify-start rounded-t-2xl pt-3 text-cream-bright shadow-md",
+                  "flex w-full flex-col items-center justify-start rounded-t-[12px] pt-3 text-white shadow-md",
                   heights[visualPos],
                   medals[visualPos]
                 )}
                 aria-hidden={!entry}
               >
-                <span className="font-display text-3xl font-extrabold sm:text-4xl">
+                <span className="font-sans text-3xl font-bold sm:text-4xl">
                   {rank}
                 </span>
               </div>

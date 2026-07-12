@@ -100,6 +100,11 @@ export function statusLabel(status: CourseStatus): string {
   return "En cours";
 }
 
+/** Classement visible dès qu’il y a des données (y compris en cours) */
+export function isRaceLive(status: CourseStatus | null | undefined): boolean {
+  return status === "En cours";
+}
+
 export function typeLabel(type: CourseType): string {
   if (type === "DH") return "Descente";
   if (type === "XC") return "Cross-country";
@@ -186,10 +191,20 @@ function dhRowToEntry(row: DHRankingRow): RankingEntry {
     genderRank: null,
     disqualified: row.disqualified,
     bikeType: normalizeBikeType(row.typeVelo),
+    mancheTimes: (row.mancheTimes ?? []).map((mt) => ({
+      mancheId: Number(mt.mancheId),
+      mancheLabel: String(mt.mancheLabel ?? `Manche ${mt.mancheId}`),
+      timeMs: mt.timeMs ?? null,
+      timeFormatted: mt.timeFormatted ?? null,
+      finished: mt.finished ?? mt.timeFormatted != null,
+    })),
   };
 }
 
-function xcRowToEntry(row: XCRankingRow): RankingEntry {
+function xcRowToEntry(
+  row: XCRankingRow,
+  mancheTimes?: RankingEntry["mancheTimes"]
+): RankingEntry {
   return {
     participantId: row.participantId,
     rank: row.rankScratch,
@@ -203,6 +218,7 @@ function xcRowToEntry(row: XCRankingRow): RankingEntry {
     categoryRank: row.rankCategory,
     genderRank: null,
     disqualified: row.disqualified,
+    mancheTimes,
   };
 }
 
@@ -211,15 +227,32 @@ export function dhRankingToEntries(data: DHPhaseRanking): RankingEntry[] {
 }
 
 export function xcRankingToEntries(data: XCPhaseRanking): RankingEntry[] {
-  return data.scratchGeneral.map(xcRowToEntry);
+  const byParticipant = new Map<number, RankingEntry["mancheTimes"]>();
+
+  (data.mancheGroups ?? []).forEach((group) => {
+    group.rows.forEach((row) => {
+      const list = byParticipant.get(row.participantId) ?? [];
+      list.push({
+        mancheId: group.mancheId,
+        mancheLabel: group.mancheLabel,
+        timeFormatted: row.timeFormatted,
+        finished: row.timeFormatted != null,
+      });
+      byParticipant.set(row.participantId, list);
+    });
+  });
+
+  return data.scratchGeneral.map((row) =>
+    xcRowToEntry(row, byParticipant.get(row.participantId) ?? [])
+  );
 }
 
-/** Ordre d'affichage des courses : En cours → À venir → Terminée */
+/** Ordre d'affichage : En cours → Terminée → À venir */
 export function sortCourses(courses: Course[]): Course[] {
   const weight: Record<CourseStatus, number> = {
     "En cours": 0,
-    "A venir": 1,
-    Terminee: 2,
+    Terminee: 1,
+    "A venir": 2,
   };
   return [...courses].sort((a, b) => {
     const d = weight[a.status] - weight[b.status];

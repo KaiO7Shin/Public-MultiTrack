@@ -15,7 +15,6 @@ type FilterTabsProps = {
   categories: string[];
   selectedCategory: string | null;
   onSelectCategory: (cat: string | null) => void;
-  /** Affiché pour les courses DH */
   showBikeFilter?: boolean;
   bikeType?: BikeType | null;
   onBikeTypeChange?: (bike: BikeType | null) => void;
@@ -51,10 +50,10 @@ export function FilterTabs({
                 if (tab.id !== "categories") onSelectCategory(null);
               }}
               className={cn(
-                "touch-target rounded-xl border-2 px-3 py-3 text-base font-bold transition",
+                "touch-target rounded-[10px] border px-3 py-3 text-base font-semibold transition",
                 active
-                  ? "border-navy bg-navy text-cream-bright"
-                  : "border-navy/15 bg-cream-bright text-navy hover:border-navy/40"
+                  ? "border-navy bg-navy text-white"
+                  : "border-line bg-cream-bright text-navy hover:border-navy/30"
               )}
             >
               {tab.label}
@@ -82,10 +81,10 @@ export function FilterTabs({
                   aria-selected={active}
                   onClick={() => onSelectCategory(active ? null : cat)}
                   className={cn(
-                    "touch-target rounded-xl border-2 px-4 py-2.5 text-base font-bold transition",
+                    "touch-target rounded-full border px-4 py-2.5 text-base font-semibold transition",
                     active
-                      ? "border-cta bg-cta text-cream-bright"
-                      : "border-navy/15 bg-cream-bright text-navy"
+                      ? "border-cta bg-cta text-white"
+                      : "border-line bg-cream-bright text-navy"
                   )}
                 >
                   {cat}
@@ -108,10 +107,10 @@ export function FilterTabs({
             aria-selected={bikeType == null}
             onClick={() => onBikeTypeChange(null)}
             className={cn(
-              "touch-target rounded-xl border-2 px-3 py-3 text-base font-bold transition",
+              "touch-target rounded-[10px] border px-3 py-3 text-base font-semibold transition",
               bikeType == null
-                ? "border-navy bg-navy text-cream-bright"
-                : "border-navy/15 bg-cream-bright text-navy hover:border-navy/40"
+                ? "border-navy bg-navy text-white"
+                : "border-line bg-cream-bright text-navy hover:border-navy/30"
             )}
           >
             Tous les vélos
@@ -126,10 +125,10 @@ export function FilterTabs({
                 aria-selected={active}
                 onClick={() => onBikeTypeChange(t)}
                 className={cn(
-                  "touch-target rounded-xl border-2 px-3 py-3 text-base font-bold transition",
+                  "touch-target rounded-[10px] border px-3 py-3 text-base font-semibold transition",
                   active
-                    ? "border-navy bg-navy text-cream-bright"
-                    : "border-navy/15 bg-cream-bright text-navy hover:border-navy/40"
+                    ? "border-navy bg-navy text-white"
+                    : "border-line bg-cream-bright text-navy hover:border-navy/30"
                 )}
               >
                 {BIKE_TYPE_LABELS[t]}

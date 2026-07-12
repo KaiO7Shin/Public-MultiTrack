@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { RaceCard } from "@/components/RaceCard";
+import { BrandLogo } from "@/components/BrandLogo";
 import { LoadingState, ErrorState, EmptyState } from "@/components/EmptyState";
-import { LiveBadge } from "@/components/LiveBadge";
 import { useAutoRefresh } from "@/hooks/useAutoRefresh";
 import { fetchRaces } from "@/services/races";
 import type { Course } from "@/lib/types";
@@ -17,64 +17,71 @@ export function HomePage() {
 
   const { loading, error, reload, updatedAt, refreshing } = useAutoRefresh(load);
 
-  const hasLive = races.some((r) => r.status === "En cours");
   const scrollToRaces = () => {
     document.getElementById("courses")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
-    <div className="texture-grain mx-auto min-h-dvh max-w-lg px-4 pb-16 pt-6 sm:max-w-2xl">
-      {/* Hero — brand first */}
+    <div className="mx-auto min-h-dvh max-w-lg px-4 pb-16 pt-5 sm:max-w-2xl">
+      <header className="mb-6 flex items-center justify-between">
+        <BrandLogo variant="light" heightClass="h-11 sm:h-12" />
+        <span className="brand-pill">Classements</span>
+      </header>
+
       <section
-        className="animate-rise-in relative mb-10 overflow-hidden rounded-3xl bg-navy px-6 py-10 text-cream-bright shadow-lg sm:px-10 sm:py-14"
+        className="animate-rise-in relative mb-10 overflow-hidden rounded-2xl bg-navy px-6 py-10 text-white shadow-sm sm:px-10 sm:py-12"
         aria-labelledby="brand-title"
       >
         <div
-          className="pointer-events-none absolute inset-0 opacity-30"
+          className="pointer-events-none absolute inset-0 opacity-40"
           style={{
             background:
-              "radial-gradient(ellipse at 80% 20%, rgba(255,77,48,0.45), transparent 50%), linear-gradient(135deg, transparent 40%, rgba(45,106,79,0.35))",
+              "radial-gradient(ellipse at 85% 15%, rgba(242,54,40,0.35), transparent 50%), radial-gradient(ellipse at 10% 90%, rgba(163,166,104,0.25), transparent 45%)",
           }}
           aria-hidden
         />
-        <div
-          className="pointer-events-none absolute -right-8 -bottom-10 h-40 w-40 rounded-full border-[12px] border-cream-bright/10"
-          aria-hidden
-        />
         <div className="relative">
-          <p className="mb-2 text-sm font-bold tracking-widest text-cream-bright/70 uppercase">
+          <BrandLogo
+            variant="dark"
+            heightClass="h-14 sm:h-16"
+            className="mb-6"
+          />
+          <p className="brand-pill mb-4 bg-white/10 text-white/90">
             Classements en direct
           </p>
           <h1
             id="brand-title"
-            className="font-display text-5xl font-extrabold leading-none tracking-wide sm:text-6xl"
+            className="font-display text-4xl leading-[1.15] tracking-tight text-white sm:text-5xl"
           >
-            MultiTrack
+            Qui est premier&nbsp;?
           </h1>
-          <p className="mt-4 max-w-md text-lg leading-snug text-cream-bright/90">
-            Qui est premier&nbsp;? Choisissez une course et voyez le classement.
+          <p className="mt-4 max-w-md text-lg leading-snug text-white/80">
+            Choisissez une course et suivez le classement — simple, clair, sur
+            mobile.
           </p>
-          <div className="mt-8 flex flex-wrap items-center gap-3">
+          <div className="mt-8">
             <button
               type="button"
               onClick={scrollToRaces}
-              className="touch-target rounded-2xl bg-cta px-6 py-3.5 text-lg font-bold text-cream-bright shadow-md transition hover:bg-cta-dark"
+              className="btn-primary text-base sm:text-lg"
             >
               Voir les classements
             </button>
-            {hasLive && <LiveBadge className="bg-live/25 text-cream-bright" />}
           </div>
         </div>
       </section>
 
       <section id="courses" aria-labelledby="courses-title">
-        <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
-          <h2
-            id="courses-title"
-            className="font-display text-2xl font-bold text-navy sm:text-3xl"
-          >
-            Les courses
-          </h2>
+        <div className="mb-5 flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <p className="brand-pill mb-2">Courses</p>
+            <h2
+              id="courses-title"
+              className="font-display text-3xl text-navy sm:text-4xl"
+            >
+              Les courses
+            </h2>
+          </div>
           {updatedAt && (
             <p className="text-sm text-muted" aria-live="polite">
               {refreshing ? "Mise à jour…" : `Mis à jour à ${updatedAt}`}
