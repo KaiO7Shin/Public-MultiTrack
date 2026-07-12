@@ -91,6 +91,7 @@ export function AthletePage() {
   );
 
   const live = isRaceLive(race?.status);
+  const isXc = race?.type === "XC";
   const mancheTimes = entry?.mancheTimes ?? [];
   const showManches = mancheTimes.length > 0;
   const needsPhaseTabs =
@@ -178,24 +179,29 @@ export function AthletePage() {
           </div>
 
           <dl className="grid grid-cols-2 gap-px bg-line">
-            <Stat label="Rang général" value={entry.rank ?? "—"} />
+            <Stat label="Rang général" value={entry.rank ?? "—"} highlight={isXc} />
             <Stat label="Rang catégorie" value={entry.categoryRank ?? "—"} />
             <Stat label="Rang genre" value={entry.genderRank ?? "—"} />
-            <Stat
-              label={showManches ? "Meilleur temps" : "Temps"}
-              value={entry.time ?? "—"}
-              highlight
-            />
+            {!isXc && (
+              <Stat
+                label={showManches ? "Meilleur temps" : "Temps"}
+                value={entry.time ?? "—"}
+                highlight
+              />
+            )}
             <Stat
               label="Statut"
               value={entry.status ?? "—"}
-              className={entry.bikeType ? undefined : "col-span-2"}
+              className={entry.bikeType || isXc ? undefined : "col-span-2"}
             />
             {entry.bikeType && (
               <Stat
                 label="Type de vélo"
                 value={BIKE_TYPE_LABELS[entry.bikeType]}
               />
+            )}
+            {isXc && !entry.bikeType && (
+              <Stat label="Type" value="Cross-country" />
             )}
             {race && (
               <Stat
@@ -206,21 +212,29 @@ export function AthletePage() {
             )}
           </dl>
 
-          {showManches && <MancheTimesSection times={mancheTimes} />}
+          {showManches && (
+            <MancheTimesSection times={mancheTimes} hideTime={isXc} />
+          )}
         </article>
       )}
     </div>
   );
 }
 
-function MancheTimesSection({ times }: { times: MancheTimeDetail[] }) {
+function MancheTimesSection({
+  times,
+  hideTime = false,
+}: {
+  times: MancheTimeDetail[];
+  hideTime?: boolean;
+}) {
   return (
     <section
       className="border-t border-line px-5 py-6"
       aria-labelledby="manches-title"
     >
       <h3 id="manches-title" className="font-display mb-4 text-2xl text-navy">
-        Temps par manche
+        {hideTime ? "Poules / manches" : "Temps par manche"}
       </h3>
       <ul className="space-y-2">
         {times.map((mt) => {
@@ -244,7 +258,11 @@ function MancheTimesSection({ times }: { times: MancheTimeDetail[] }) {
                   done ? "text-cta" : "text-muted"
                 )}
               >
-                {mt.timeFormatted ?? "—"}
+                {hideTime
+                  ? done
+                    ? "Classé"
+                    : "En attente"
+                  : (mt.timeFormatted ?? "—")}
               </span>
             </li>
           );

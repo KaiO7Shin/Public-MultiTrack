@@ -292,12 +292,14 @@ export function RankingPage() {
                   entries={podiumSource}
                   raceId={raceId}
                   phaseId={activePhaseId}
+                  showTime={race?.type !== "XC"}
                 />
               )}
               <RankingList
                 entries={filtered}
                 raceId={raceId}
                 phaseId={activePhaseId}
+                showTime={race?.type !== "XC"}
               />
             </div>
           )}

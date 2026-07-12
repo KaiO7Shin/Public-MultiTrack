@@ -9,9 +9,16 @@ type RankingListProps = {
   entries: RankingEntry[];
   raceId: number;
   phaseId?: number | null;
+  /** false pour XC (classement sans temps) */
+  showTime?: boolean;
 };
 
-export function RankingList({ entries, raceId, phaseId }: RankingListProps) {
+export function RankingList({
+  entries,
+  raceId,
+  phaseId,
+  showTime = true,
+}: RankingListProps) {
   if (entries.length === 0) return null;
 
   return (
@@ -65,9 +72,11 @@ export function RankingList({ entries, raceId, phaseId }: RankingListProps) {
               </p>
             </div>
 
-            <span className="font-sans shrink-0 text-right text-xl font-bold text-navy sm:text-2xl">
-              {entry.time ?? "—"}
-            </span>
+            {showTime && (
+              <span className="font-sans shrink-0 text-right text-xl font-bold text-navy sm:text-2xl">
+                {entry.time ?? "—"}
+              </span>
+            )}
           </Link>
         </li>
       ))}

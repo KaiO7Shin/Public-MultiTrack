@@ -8,11 +8,13 @@ type PodiumProps = {
   entries: RankingEntry[];
   raceId: number;
   phaseId?: number | null;
+  /** false pour XC (classement sans temps) */
+  showTime?: boolean;
 };
 
 const ORDER = [1, 0, 2] as const;
 
-export function Podium({ entries, raceId, phaseId }: PodiumProps) {
+export function Podium({ entries, raceId, phaseId, showTime = true }: PodiumProps) {
   const top = entries
     .filter(
       (e) => e.rank != null && e.rank >= 1 && e.rank <= 3 && !e.disqualified
@@ -55,9 +57,15 @@ export function Podium({ entries, raceId, phaseId }: PodiumProps) {
                     {formatParticipantName(entry.firstName, entry.lastName)}
                   </p>
                   <p className="text-sm text-muted">n°{entry.bib}</p>
-                  <p className="mt-0.5 font-sans text-lg font-bold text-cta sm:text-xl">
-                    {entry.time ?? "—"}
-                  </p>
+                  {showTime ? (
+                    <p className="mt-0.5 font-sans text-lg font-bold text-cta sm:text-xl">
+                      {entry.time ?? "—"}
+                    </p>
+                  ) : (
+                    <p className="mt-0.5 font-sans text-lg font-bold text-cta sm:text-xl">
+                      {entry.rank != null ? `${entry.rank}ᵉ` : "—"}
+                    </p>
+                  )}
                 </Link>
               ) : (
                 <div className="mb-2 h-[4.5rem]" />
